@@ -10,17 +10,18 @@
         </div>
 
         <!-- 卡片视图 - GridLayout -->
-        <div v-else-if="viewMode === 'card'" class="w-full">
+        <div v-else-if="viewMode === 'card'" class="w-full" :style="{ height: bookListHeight }">
           <grid-layout
-            :layout.sync="layout"
+            v-model:layout="layout"
             :col-num="12"
-            :row-height="30"
+            :row-height="190"
+            :margin="[20, 20]"
             :is-draggable="false"
             :is-resizable="false"
             :is-mirrored="false"
-            :margin="[20, 20]"
             :responsive="true"
             :use-css-transforms="true"
+            style="height: 100%; overflow-y: auto;"
           >
             <grid-item
               v-for="(book, index) in books"
@@ -130,7 +131,10 @@
 <script setup>
 
 import { GridLayout, GridItem } from 'vue3-grid-layout-next'
-import { defineProps, h, ref, computed } from 'vue'
+import { defineProps, h, computed } from 'vue'
+import { useSettingsStore } from '../stores/settings'
+
+const settingsStore = useSettingsStore()
 
 const props = defineProps({
   books: {
@@ -151,11 +155,18 @@ const props = defineProps({
 const layout = computed(() => {
   return props.books.map((book, index) => ({
     x: (index % 3) * 4,
-    y: Math.floor(index / 3) * 11,
+    y: Math.floor(index / 3) * 2,
     w: 4,
-    h: 11,
+    h: 2,
     i: book.id.toString(),
   }))
+})
+
+const bookListHeight = computed(() => {
+  const offset = 260
+  const minHeight = 420
+  const height = settingsStore.windowHeight - offset
+  return `${height > minHeight ? height : minHeight}px`
 })
 
 const getBookCover = (book) => {

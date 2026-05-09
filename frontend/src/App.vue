@@ -76,9 +76,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useUserStore } from './stores/user'
 import { useBooksStore } from './stores/books'
+import { useSettingsStore } from './stores/settings'
 import LoginForm from './components/LoginForm.vue'
 import RegisterForm from './components/RegisterForm.vue'
 import UserProfile from './components/UserProfile.vue'
@@ -89,6 +90,7 @@ import BookList from './components/BookList.vue'
 
 const userStore = useUserStore()
 const booksStore = useBooksStore()
+const settingsStore = useSettingsStore()
 const currentPage = ref('home')
 const showDonateModal = ref(false)
 const viewMode = ref('card')
@@ -106,10 +108,21 @@ const handleBookSubmitted = () => {
   booksStore.fetchBooks()
 }
 
+const updateWindowSize = () => {
+  settingsStore.updateWindowSize(window.innerWidth, window.innerHeight)
+}
+
 onMounted(async () => {
+  settingsStore.initWindowSize()
+  window.addEventListener('resize', updateWindowSize)
+
   await booksStore.fetchCategories()
   await userStore.loadCurrentUser()
   await booksStore.fetchBooks()
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', updateWindowSize)
 })
 </script>
 
@@ -119,11 +132,13 @@ onMounted(async () => {
 }
 
 .header {
+    
   background: #fff;
   border-bottom: 1px solid #e5e7eb;
 }
 
 .header-content {
+    height: 64px;
   display: flex;
   justify-content: space-between;
   align-items: center;
