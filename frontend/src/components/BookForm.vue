@@ -87,7 +87,7 @@
 
 <script setup>
 import { reactive, ref, computed } from 'vue'
-import axios from 'axios'
+import { searchBooks } from '../api/search'
 import { useUserStore } from '../stores/user'
 import { useBooksStore } from '../stores/books'
 import { Message } from '@arco-design/web-vue'
@@ -128,11 +128,9 @@ const handleBookSearch = async (query) => {
 
   searchLoading.value = true
   try {
-    const response = await axios.get('/api/book-search', {
-      params: { q: query },
-    })
+    const response = await searchBooks(query)
     searchResults.value = {}
-    searchOptions.value = response.data.map((item) => {
+    searchOptions.value = response.map((item) => {
       searchResults.value[item.id] = item
       return {
         key: item.id,

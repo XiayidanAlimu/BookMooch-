@@ -5,6 +5,9 @@
         <h1>公益图书馆</h1>
         <div class="user-actions">
           <a-button @click="currentPage = 'home'" type="text">首页</a-button>
+          <a-button @click="currentPage = 'wishlist'" type="text">我的心愿单</a-button>
+          <a-button @click="currentPage = 'orders'" type="text">领取订单</a-button>
+          <a-button @click="currentPage = 'help'" type="text">帮助</a-button>
           <a-button v-if="!userStore.isLoggedIn" @click="currentPage = 'login'" type="text">登录</a-button>
           <a-button v-if="!userStore.isLoggedIn" @click="currentPage = 'register'" type="text">注册</a-button>
           <a-button v-if="userStore.isLoggedIn" @click="currentPage = 'profile'" type="text">我的详情</a-button>
@@ -30,6 +33,18 @@
 
         <template v-else-if="currentPage === 'my-books'">
           <MyBooks />
+        </template>
+
+        <template v-else-if="currentPage === 'wishlist'">
+          <WishlistPage />
+        </template>
+
+        <template v-else-if="currentPage === 'orders'">
+          <OrdersPage />
+        </template>
+
+        <template v-else-if="currentPage === 'help'">
+          <HelpPage />
         </template>
 
         <template v-else>
@@ -84,6 +99,9 @@ import LoginForm from './components/LoginForm.vue'
 import RegisterForm from './components/RegisterForm.vue'
 import UserProfile from './components/UserProfile.vue'
 import MyBooks from './components/MyBooks.vue'
+import WishlistPage from './components/WishlistPage.vue'
+import OrdersPage from './components/OrdersPage.vue'
+import HelpPage from './components/HelpPage.vue'
 import CategoryFilter from './components/CategoryFilter.vue'
 import BookForm from './components/BookForm.vue'
 import BookList from './components/BookList.vue'

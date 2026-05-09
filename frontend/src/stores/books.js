@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import axios from 'axios'
+import { getBooks, getCategories, addBook as addBookApi, getUserBooks as getUserBooksApi } from '../api/book'
 
 export const useBooksStore = defineStore('books', {
   state: () => ({
@@ -10,25 +10,22 @@ export const useBooksStore = defineStore('books', {
   actions: {
     async fetchBooks() {
       try {
-        const params = this.selectedCategoryId ? { category_id: this.selectedCategoryId } : {}
-        const response = await axios.get('/api/books', { params })
-        this.books = response.data
+        this.books = await getBooks(this.selectedCategoryId)
       } catch (error) {
         console.error('获取捐书列表失败：', error)
       }
     },
     async fetchCategories() {
       try {
-        const response = await axios.get('/api/categories')
-        this.categories = response.data
+        this.categories = await getCategories()
       } catch (error) {
         console.error('获取分类列表失败：', error)
       }
     },
     async addBook(bookData) {
       try {
-        const response = await axios.post('/api/books', bookData)
-        this.books.unshift(response.data)
+        const response = await addBookApi(bookData)
+        this.books.unshift(response)
         return { success: true }
       } catch (error) {
         return { success: false, error: error.response?.data?.error || '提交失败' }
@@ -36,8 +33,7 @@ export const useBooksStore = defineStore('books', {
     },
     async fetchUserBooks(userId) {
       try {
-        const response = await axios.get(`/api/users/${userId}/books`)
-        return response.data
+        return await getUserBooksApi(userId)
       } catch (error) {
         console.error('获取用户捐书记录失败：', error)
         return []

@@ -12,7 +12,8 @@
     "@arco-design/web-vue": "^2.55.0",
     "axios": "^1.7.0",
     "pinia": "^2.1.7",
-    "vue": "^3.4.0"
+    "vue": "^3.4.0",
+    "vxe-pc-ui": "^4.14.6"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.2.0",

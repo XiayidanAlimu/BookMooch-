@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import axios from 'axios'
+import { login as loginApi, register as registerApi, getCurrentUser as getCurrentUserApi, logout as logoutApi } from '../api/auth'
 
 export const useUserStore = defineStore('user', {
   state: () => ({
@@ -10,19 +10,13 @@ export const useUserStore = defineStore('user', {
     isLoggedIn: (state) => !!state.currentUser && !!state.token,
   },
   actions: {
-    initializeAxios() {
-      if (this.token) {
-        axios.defaults.headers.common['Authorization'] = `Bearer ${this.token}`
-      }
-    },
     async login(username, password) {
       try {
-        const response = await axios.post('/api/login', { username, password })
-        this.token = response.data.token
-        this.currentUser = response.data.user
+        const response = await loginApi(username, password)
+        this.token = response.token
+        this.currentUser = response.user
         localStorage.setItem('donate_token', this.token)
         localStorage.setItem('donate_user', JSON.stringify(this.currentUser))
-        axios.defaults.headers.common['Authorization'] = `Bearer ${this.token}`
         return { success: true }
       } catch (error) {
         return { success: false, error: error.response?.data?.error || '登录失败' }
@@ -30,8 +24,8 @@ export const useUserStore = defineStore('user', {
     },
     async register(userData) {
       try {
-        const response = await axios.post('/api/register', userData)
-        return { success: true, user: response.data }
+        const response = await registerApi(userData)
+        return { success: true, user: response }
       } catch (error) {
         return { success: false, error: error.response?.data?.error || '注册失败' }
       }
@@ -39,19 +33,23 @@ export const useUserStore = defineStore('user', {
     async loadCurrentUser() {
       if (!this.token) return
       try {
-        const response = await axios.get('/api/me')
-        this.currentUser = response.data
+        const response = await getCurrentUserApi()
+        this.currentUser = response
         localStorage.setItem('donate_user', JSON.stringify(this.currentUser))
       } catch (error) {
         this.logout()
       }
     },
-    logout() {
+    async logout() {
+      try {
+        await logoutApi()
+      } catch {
+        // ignore logout errors
+      }
       this.currentUser = null
       this.token = null
       localStorage.removeItem('donate_token')
       localStorage.removeItem('donate_user')
-      delete axios.defaults.headers.common['Authorization']
     },
   },
 })
