@@ -128,6 +128,8 @@
 </template>
 
 <script setup>
+
+import { GridLayout, GridItem } from 'vue3-grid-layout-next'
 import { defineProps, h, ref, computed } from 'vue'
 
 const props = defineProps({
