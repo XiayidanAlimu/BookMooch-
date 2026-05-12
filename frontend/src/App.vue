@@ -2,128 +2,69 @@
   <a-layout class="layout">
     <a-layout-header class="header">
       <div class="header-content">
-        <h1>公益图书馆</h1>
+        <h1 class="app-title" @click="goHome" tabindex="0">公益图书馆</h1>
         <div class="user-actions">
-          <a-button @click="currentPage = 'home'" type="text">首页</a-button>
-          <a-button @click="currentPage = 'wishlist'" type="text">我的心愿单</a-button>
-          <a-button @click="currentPage = 'orders'" type="text">领取订单</a-button>
-          <a-button @click="currentPage = 'help'" type="text">帮助</a-button>
-          <a-button v-if="!userStore.isLoggedIn" @click="currentPage = 'login'" type="text">登录</a-button>
-          <a-button v-if="!userStore.isLoggedIn" @click="currentPage = 'register'" type="text">注册</a-button>
-          <a-button v-if="userStore.isLoggedIn" @click="currentPage = 'profile'" type="text">我的详情</a-button>
-          <a-button v-if="userStore.isLoggedIn" @click="currentPage = 'my-books'" type="text">我的捐书</a-button>
-          <a-button v-if="userStore.isLoggedIn" @click="userStore.logout()" type="text">登出</a-button>
+          <a-button @click="router.push({ name: 'Help' })" type="text">帮助</a-button>
+
+          <template v-if="!userStore.isLoggedIn">
+            <a-button @click="router.push({ name: 'Login' })" type="text">登录</a-button>
+            <a-button @click="router.push({ name: 'Register' })" type="text">注册</a-button>
+          </template>
+
+          <template v-else>
+            <a-dropdown trigger="click">
+              <template #default>
+                <div class="user-dropdown-trigger">
+                  <a-avatar :size="40" class="user-avatar">
+                    {{ userStore.currentUser.fullname ? userStore.currentUser.fullname[0] : 'U' }}
+                  </a-avatar>
+                  <span class="user-name">{{ userStore.currentUser.fullname || userStore.currentUser.username }}</span>
+                </div>
+              </template>
+              <template #content>
+                <div class="dropdown-menu">
+                  <a-button type="text" class="dropdown-item" @click="router.push({ name: 'Profile' })">Profile</a-button>
+                  <a-button type="text" class="dropdown-item" @click="handleLogout">Logout</a-button>
+                </div>
+              </template>
+            </a-dropdown>
+          </template>
         </div>
       </div>
     </a-layout-header>
 
     <a-layout-content class="content">
       <div class="container">
-        <template v-if="currentPage === 'login'">
-          <LoginForm @login-success="handleLoginSuccess" />
-        </template>
-
-        <template v-else-if="currentPage === 'register'">
-          <RegisterForm @register-success="handleRegisterSuccess" />
-        </template>
-
-        <template v-else-if="currentPage === 'profile'">
-          <UserProfile :user="userStore.currentUser" />
-        </template>
-
-        <template v-else-if="currentPage === 'my-books'">
-          <MyBooks />
-        </template>
-
-        <template v-else-if="currentPage === 'wishlist'">
-          <WishlistPage />
-        </template>
-
-        <template v-else-if="currentPage === 'orders'">
-          <OrdersPage />
-        </template>
-
-        <template v-else-if="currentPage === 'help'">
-          <HelpPage />
-        </template>
-
-        <template v-else>
-          <a-alert
-            v-if="userStore.isLoggedIn"
-            :message="`当前用户：${userStore.currentUser.fullname}（${userStore.currentUser.username}），已捐赠 ${userStore.currentUser.donated_books_count} 本书。`"
-            type="info"
-            show-icon
-            style="margin-bottom: 16px;"
-          />
-
-          <div class="toolbar">
-            <a-space>
-              <a-button @click="showDonateModal = true" type="primary">
-                我要捐书
-              </a-button>
-              <a-radio-group v-model="viewMode" type="button">
-                <a-radio value="card">卡片视图</a-radio>
-                <a-radio value="list">列表视图</a-radio>
-              </a-radio-group>
-            </a-space>
-          </div>
-
-          <CategoryFilter
-            :categories="booksStore.categories"
-            :selected-category-id="booksStore.selectedCategoryId"
-            @category-change="booksStore.setSelectedCategory"
-          />
-
-          <BookList :books="booksStore.books" :view-mode="viewMode" />
-        </template>
-
-        <a-modal
-          v-model:visible="showDonateModal"
-          title="捐书登记"
-          :width="600"
-          :footer="null"
-        >
-          <BookForm @submitted="handleBookSubmitted" @cancel="showDonateModal = false" />
-        </a-modal>
+        <router-view />
       </div>
     </a-layout-content>
   </a-layout>
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+
+import { onMounted, onBeforeUnmount, provide } from 'vue'
+import { useRouter } from 'vue-router'
 import { useUserStore } from './stores/user'
 import { useBooksStore } from './stores/books'
 import { useSettingsStore } from './stores/settings'
-import LoginForm from './components/LoginForm.vue'
-import RegisterForm from './components/RegisterForm.vue'
-import UserProfile from './components/UserProfile.vue'
-import MyBooks from './components/MyBooks.vue'
-import WishlistPage from './components/WishlistPage.vue'
-import OrdersPage from './components/OrdersPage.vue'
-import HelpPage from './components/HelpPage.vue'
-import CategoryFilter from './components/CategoryFilter.vue'
-import BookForm from './components/BookForm.vue'
-import BookList from './components/BookList.vue'
 
+const router = useRouter()
 const userStore = useUserStore()
 const booksStore = useBooksStore()
 const settingsStore = useSettingsStore()
-const currentPage = ref('home')
-const showDonateModal = ref(false)
-const viewMode = ref('card')
 
-const handleLoginSuccess = () => {
-  currentPage.value = 'home'
+provide('userStore', userStore)
+provide('booksStore', booksStore)
+provide('settingsStore', settingsStore)
+
+const goHome = () => {
+  router.push({ name: 'Home' })
 }
 
-const handleRegisterSuccess = () => {
-  currentPage.value = 'login'
-}
-
-const handleBookSubmitted = () => {
-  showDonateModal.value = false
-  booksStore.fetchBooks()
+const handleLogout = () => {
+  userStore.logout()
+  router.push({ name: 'Login' })
 }
 
 const updateWindowSize = () => {
@@ -165,14 +106,43 @@ onBeforeUnmount(() => {
   padding: 0 16px;
 }
 
-.header-content h1 {
+.app-title {
   margin: 0;
   color: #1d4ed8;
+  cursor: pointer;
+  user-select: none;
+  font-size: 20px;
 }
 
 .user-actions {
   display: flex;
   gap: 8px;
+  align-items: center;
+}
+
+.user-dropdown-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.user-name {
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.dropdown-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+}
+
+.dropdown-item {
+  width: 100%;
+  text-align: left;
+  padding: 8px 12px;
 }
 
 .content {

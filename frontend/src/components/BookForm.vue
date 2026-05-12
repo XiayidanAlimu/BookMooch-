@@ -86,10 +86,8 @@
 </template>
 
 <script setup>
-import { reactive, ref, computed } from 'vue'
+import { reactive, ref, computed, inject } from 'vue'
 import { searchBooks } from '../api/search'
-import { useUserStore } from '../stores/user'
-import { useBooksStore } from '../stores/books'
 import { Message } from '@arco-design/web-vue'
 
 const props = defineProps({
@@ -100,8 +98,8 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['submitted'])
-const userStore = useUserStore()
-const booksStore = useBooksStore()
+const userStore = inject('userStore') // 从 App.vue 注入 userStore
+const booksStore = inject('booksStore') // 从 App.vue 注入 booksStore  
 
 const formState = reactive({
   title: '',

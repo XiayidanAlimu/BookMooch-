@@ -29,12 +29,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useUserStore } from '../stores/user'
-import { useBooksStore } from '../stores/books'
 
-const userStore = useUserStore()
-const booksStore = useBooksStore()
+import { ref, onMounted, inject } from 'vue'
+
+const userStore = inject('userStore') // 从 App.vue 注入 userStore
+const booksStore = inject('booksStore') // 从 App.vue 注入 booksStore
+
 const books = ref([])
 const loading = ref(false)
 

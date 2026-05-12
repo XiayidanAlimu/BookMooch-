@@ -64,14 +64,14 @@
 </template>
 
 <script setup>
-import { onMounted, computed, ref } from 'vue'
-import { useSettingsStore } from '../stores/settings'
-import { useOrdersStore } from '../stores/orders'
-import { useUserStore } from '../stores/user'
 
-const userStore = useUserStore()
+import { onMounted, computed, ref, inject } from 'vue'
+import { useOrdersStore } from '../stores/orders'
+
 const ordersStore = useOrdersStore()
-const settingsStore = useSettingsStore()
+const userStore = inject('userStore') // 从 App.vue 注入 userStore
+const settingsStore = inject('settingsStore') // 从 App.vue 注入 settingsStore
+
 const loading = ref(false)
 
 const listHeight = computed(() => {

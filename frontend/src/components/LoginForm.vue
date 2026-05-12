@@ -23,11 +23,11 @@
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue'
-import { useUserStore } from '../stores/user'
+
+import { inject, reactive, ref } from 'vue'
 import { Message } from '@arco-design/web-vue'
 
-const userStore = useUserStore()
+const userStore = inject('userStore') // 从 App.vue 注入 userStore
 const emit = defineEmits(['login-success'])
 
 const form = reactive({
